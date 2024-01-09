@@ -27,4 +27,4 @@ def index():
     """
     task 1 function
     """
-    return render_template('0-index.html')
+    return render_template('1-index.html')
