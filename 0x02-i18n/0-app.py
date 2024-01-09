@@ -1,3 +1,15 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+"""
+test 1
+"""
+from flask import Flask, render_template
 
-from app import app
+app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    """
+    task 1 function
+    """
+    return render_template('0-index.html')
