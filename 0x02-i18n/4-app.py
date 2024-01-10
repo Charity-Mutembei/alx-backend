@@ -22,7 +22,7 @@ app.config.from_object(Config)
 
 
 @babel.localeselector
-def get_locale():
+def get_locale()->str:
     """
     Get the best-matching language for the user.
     """
@@ -42,7 +42,7 @@ def index():
     """
     task 1 function
     """
-    return render_template('1-index.html')
+    return render_template('4-index.html')
 
 
 if __name__ == '__main__':
