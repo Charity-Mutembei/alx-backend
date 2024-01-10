@@ -22,7 +22,7 @@ app.config.from_object(Config)
 
 
 @babel.localeselector
-def get_locale()->str:
+def get_locale() -> str:
     """
     Get the best-matching language for the user.
     """
@@ -30,7 +30,7 @@ def get_locale()->str:
     locale_param = request.args.get('locale')
 
     # If the 'locale' parameter is a supported language, use it
-    if locale_param and locale_param in app.config['LANGUAGES']:
+    if locale_param in app.config['LANGUAGES']:
         return locale_param
 
     # Resort to the previous default behavior
