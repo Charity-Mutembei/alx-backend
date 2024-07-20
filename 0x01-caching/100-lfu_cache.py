@@ -1,54 +1,64 @@
 #!/usr/bin/python3
-""" LFUCaching module
+""" LFUCache module
 """
-
-BaseCaching = __import__('base_caching').BaseCaching
+from base_caching import BaseCaching
+from collections import defaultdict, OrderedDict
 
 
 class LFUCache(BaseCaching):
-    """ LFUCache inherits from BaseCaching and is a
-    caching system using LFU algorithm
+    """ LFUCache inherits from BaseCaching
     """
 
     def __init__(self):
-        """ Initialize the LFU cache
+        """ Initialize the LFUCache
         """
         super().__init__()
-        self.frequency_counter = {}
+        self.freq = defaultdict(int)  # Frequency of access for each key
+        self.order = OrderedDict()
+        self.key_freq_order = defaultdict(OrderedDict)
 
     def put(self, key, item):
-        """ Add an item in the cache
+        """ Add an item in the cache using LFU algorithm
         """
         if key is not None and item is not None:
-            if len(self.cache_data) >= self.MAX_ITEMS:
-                # Discard the least frequency used item (LFU)
-                min_frequency = min(self.frequency_counter.values())
-                candidates = [k for k, v
-                              in self.frequency_counter.items()
-                              if v == min_frequency]
+            if key in self.cache_data:
+                # Update the item and increase its frequency
+                self.cache_data[key] = item
+                self.freq[key] += 1
+                # Move the key to the end of the order dictionary
+                self.order.move_to_end(key)
+                self.key_freq_order[self.freq[key]].move_to_end(key)
+            else:
+                if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                    # Find the least frequently used frequency
+                    min_freq = min(self.freq.values())
+                    lfu_keys = self.key_freq_order[min_freq]
+                    lru_key = next(iter(lfu_keys))
+                    self.cache_data.pop(lru_key)
+                    self.freq.pop(lru_key)
+                    lfu_keys.pop(lru_key)
+                    if not lfu_keys:
+                        self.key_freq_order.pop(min_freq)
+                    print(f"DISCARD: {lru_key}")
 
-                if len(candidates) > 1:
-                    # Use LRU algorithm to break ties
-                    lru_key = min(self.cache_data,
-                                  key=lambda k:
-                                  self.cache_data[k][1])
-                    discarded_key = lru_key
-                else:
-                    discarded_key = candidates[0]
-
-                del self.cache_data[discarded_key]
-                del self.frequency_counter[discarded_key]
-                print("DISCARD: {}".format(discarded_key))
-
-            self.cache_data[key] = (item, 0)  # Frequency initialized to 0
-            self.frequency_counter[key] = 0
+                # Add the new item
+                self.cache_data[key] = item
+                self.freq[key] = 1
+                self.order[key] = None
+                self.key_freq_order[1][key] = None
 
     def get(self, key):
         """ Get an item by key
         """
-        if key is not None:
-            if key in self.cache_data:
-                # Update the frequency counter
-                self.frequency_counter[key] += 1
-                return self.cache_data[key][0]
+        if key is None:
+            return None
+        if key in self.cache_data:
+            # Increase the frequency of the key
+            self.freq[key] += 1
+            # Move the key to the end of the order dictionary
+            self.order.move_to_end(key)
+            # Update the frequency order
+            freq = self.freq[key]
+            self.key_freq_order[freq].move_to_end(key)
+            return self.cache_data[key]
         return None
