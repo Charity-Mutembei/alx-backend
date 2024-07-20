@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-task 2
+1. Simple pagination
 """
 import csv
 from typing import List
@@ -8,11 +8,12 @@ from typing import List
 
 def index_range(page: int, page_size: int) -> tuple:
     """
-    check file 0
+    Returns a tuple of size two containing a start
+    index and an end index
     """
-    start_index = (page - 1) * page_size
-    end_index = start_index + page_size
-    return start_index, end_index
+    first_index = (page - 1) * page_size
+    last_index = first_index + page_size
+    return first_index, last_index
 
 
 class Server:
@@ -35,14 +36,14 @@ class Server:
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
         assert isinstance(page,
-                          int) and page > 0, "Pagemust be a positive integer"
+                          int) and page > 0, "must be positive integer"
         assert isinstance(page_size,
-                          int) > 0, "Page size must be a positive integer"
+                          int) > 0, "must be positive integer"
 
-        start_index, end_index = index_range(page, page_size)
+        first_index, last_index = index_range(page, page_size)
         dataset = self.dataset()
 
-        if start_index >= len(dataset):
+        if first_index >= len(dataset):
             return []
 
-        return dataset[start_index:end_index]
+        return dataset[first_index:last_index]
