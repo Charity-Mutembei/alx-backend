@@ -5,11 +5,14 @@ takes two integer arguments page and page_size.
 """
 
 
-def index_range(page: int, page_size: int) -> tuple:
+def index_range(page, page_size):
     """
-    Returns a tuple of size two containing a start
-    index and an end index
+    function index_range
     """
+    if page < 1 or page_size < 1:
+        raise ValueError("Both must be positive integers.")
+
     start_index = (page - 1) * page_size
-    end_index = start_index + page_size
-    return start_index, end_index
+    end_index = start_index + page_size - 1
+    
+    return (start_index, end_index)
