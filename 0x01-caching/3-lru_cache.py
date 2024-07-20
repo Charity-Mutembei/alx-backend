@@ -1,41 +1,45 @@
 #!/usr/bin/python3
-""" LRUCaching module
+""" LRUCache module
 """
-
-BaseCaching = __import__('base_caching').BaseCaching
+from base_caching import BaseCaching
+from collections import OrderedDict
 
 
 class LRUCache(BaseCaching):
-    """ LRUCache inherits from BaseCaching and
-    is a caching system using LRU algorithm
+    """ LRUCache inherits from BaseCaching
     """
 
     def __init__(self):
-        """ Initialize the LRU cache
+        """ Initialize the LRUCache
         """
         super().__init__()
-        self.order_of_access = []
+        self.order = OrderedDict()
 
     def put(self, key, item):
-        """ Add an item in the cache
+        """ Add an item in the cache using LRU algorithm
         """
         if key is not None and item is not None:
-            if len(self.cache_data) >= self.MAX_ITEMS:
-                # Discard the least recently used item (LRU)
-                lru_key = self.order_of_access.pop(0)
-                del self.cache_data[lru_key]
-                print("DISCARD: {}".format(lru_key))
+            if key in self.cache_data:
+                # Update the item and move it to the end of the OrderedDict
+                self.cache_data[key] = item
+                self.order.move_to_end(key)
+            else:
+                if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                    oldest_key, _ = self.order.popitem(last=False)
+                    self.cache_data.pop(oldest_key)
+                    print(f"DISCARD: {oldest_key}")
 
-            self.cache_data[key] = item
-            self.order_of_access.append(key)
+                # Add the new item to cache_data and order
+                self.cache_data[key] = item
+                self.order[key] = None
 
     def get(self, key):
         """ Get an item by key
         """
-        if key is not None:
-            if key in self.cache_data:
-                # Update the order of access
-                self.order_of_access.remove(key)
-                self.order_of_access.append(key)
-                return self.cache_data[key]
+        if key is None:
+            return None
+        if key in self.cache_data:
+            # Move the accessed item to the end of the OrderedDict
+            self.order.move_to_end(key)
+            return self.cache_data[key]
         return None
